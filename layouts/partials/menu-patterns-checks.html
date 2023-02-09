@@ -1,0 +1,49 @@
+<div class="pf-c-select pf-m-expanded">
+  <span id="select-checkbox-expanded-selected-label" hidden>Choose one</span>
+  <div class="pf-c-select__menu">
+
+    <!--Pattern type-->
+    <div class="pf-c-select__menu-group">
+      <div class="pf-c-select__menu-group-title" aria-hidden="true" id="select-checkbox-expanded-selected-group-patterntype">Pattern type
+      </div>
+      <fieldset class="pf-c-select__menu-fieldset" aria-labelledby="select-checkbox-expanded-selected-group-patterntype">
+        <label class="pf-c-check pf-c-select__menu-item" for="select-checkbox-expanded-selected-validated">
+          <input class="pf-c-check__input" type="checkbox" onclick="filterSelection(this.id)" id="type:validated" name="validated"/>
+          <span class="pf-c-check__label">Validated by Red Hat</span>
+        </label>
+        <label class="pf-c-check pf-c-select__menu-item" for="select-checkbox-expanded-selected-community">
+          <input class="pf-c-check__input" type="checkbox" onclick="filterSelection(this.id)" id="type:community" name="community"/>
+          <span class="pf-c-check__label">Community pattern</span>
+        </label>
+      </fieldset>
+  </div>
+
+  <!--Industry-->
+    <div class="pf-c-select__menu-group">
+      <div class="pf-c-select__menu-group-title" aria-hidden="true" id="select-checkbox-expanded-selected-group-industry">Industry
+      </div>
+      <fieldset class="pf-c-select__menu-fieldset" aria-labelledby="select-checkbox-expanded-selected-group-industry">
+        {{ range $name, $taxonomy := .Site.Taxonomies.industries }}
+        <label class="pf-c-check pf-c-select__menu-item" for="select-checkbox-expanded-selected-{{- $name | humanize | title  -}}">
+          <input class="pf-c-check__input" type="checkbox" id="industries:{{- $name -}}" onclick="filterSelection(this.id)" name="{{- $name | humanize | title  -}}"/>
+          <span class="pf-c-check__label">{{- $name | humanize | title  -}}</span>
+        </label>
+        {{ end }}
+      </fieldset>
+    </div>
+
+      <!--RH products-->
+      <div class="pf-c-select__menu-group">
+        <div class="pf-c-select__menu-group-title" aria-hidden="true" id="select-checkbox-expanded-selected-group-RHproducts">Red Hat products
+        </div>
+        <fieldset class="pf-c-select__menu-fieldset" aria-labelledby="select-checkbox-expanded-selected-group-RHproducts">
+          {{ range $name, $taxonomy := .Site.Taxonomies.products }}
+          <label class="pf-c-check pf-c-select__menu-item" for="select-checkbox-expanded-selected-{{ $taxonomy.Page.Title }}">
+            <input class="pf-c-check__input" type="checkbox" id="products:{{- $name -}}" onclick="filterSelection(this.id)" name="{{ $taxonomy.Page.Title }}"/>
+            <span class="pf-c-check__label wrappable">{{ $taxonomy.Page.Title }}</span>
+          </label>
+          {{ end }}
+        </fieldset>
+    </div>
+  </div>
+</div>

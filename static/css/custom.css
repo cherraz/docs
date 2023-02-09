@@ -339,18 +339,16 @@ td > code {
 }
 
 .pf-c-page__sidebar {
-  background-color: var(--pf-global--BackgroundColor--light-100); 
+  background-color: var(--pf-global--BackgroundColor--light-100);
   border-right-style: solid;
   border-width: 1px;
   border-color:  var(--pf-global--BorderColor--100)
 }
 
-
 .pf-c-jump-links__link.pf-m-current, .pf-c-jump-links__link.pf-m-current:hover, .pf-c-jump-links__link.pf-m-current:not(.pf-m-expanded) .pf-c-nav__link {
 
-    color: var(--pf-c-nav__link--m-current--Color);
-    background-color: var(--pf-c-nav__link--m-current--BackgroundColor);
-
+  color: var(--pf-c-nav__link--m-current--Color);
+  background-color: var(--pf-c-nav__link--m-current--BackgroundColor);
 }
 
 /*Make big titles less bold*/
@@ -358,6 +356,70 @@ td > code {
 .pf-c-title.pf-m-4xl{
   font-weight: var(--pf-global--FontWeight--light);
 }
+
+/*For the Patterns page */
+.pf-l-stack__item.pf-u-text-align-right {
+  margin-top: 1rem;
+}
+.pf-c-panel__header {
+  font-weight: bold ;
+}
+
+.filter-title {
+  margin-left: 1rem;
+}
+
+.reset-title {
+  margin-right: 1rem;
+  font-size: 0.75em;
+}
+
+.filter-title-div {
+  margin-top: 2rem;
+}
+
+.wrappable {
+  white-space:break-spaces;
+  text-align: left
+}
+
+
+.pf-c-check__label {
+  font-size: 0.8rem;
+}
+
+.pattern-count-style {
+  font-size:0.8rem;
+}
+
+
+
+
+.collapse:not(.show) {
+    display: none;
+}
+
+.collapsing {
+  height: 0;
+  overflow: hidden;
+  @include transition($transition-collapse);
+}
+
+.pf-c-label__icon {
+  margin-right: 0.5rem;
+}
+
+.pf-c-accordion__toggle {
+  padding: var(--pf-global--spacer--md) var(--pf-global--spacer--lg) var(--pf-global--spacer--md) var(--pf-global--spacer--md);
+}
+
+.pf-c-accordion__toggle-link {
+  padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--md) var(--pf-global--spacer--sm) var(--pf-global--spacer--sm);
+}
+
+
+
+
 
 /*FOOTER*/
 
