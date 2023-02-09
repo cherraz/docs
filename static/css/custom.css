@@ -328,6 +328,38 @@ td > code {
   opacity: 0.5;
 }
 
+/*Changes to make things more white*/
+
+.pf-c-page__main-section {
+  background-color:  var(--pf-global--BackgroundColor--light-100)
+}
+
+.pf-c-card {
+  box-shadow: var(--pf-global--BoxShadow--md);
+}
+
+.pf-c-page__sidebar {
+  background-color: var(--pf-global--BackgroundColor--light-100); 
+  border-right-style: solid;
+  border-width: 1px;
+  border-color:  var(--pf-global--BorderColor--100)
+}
+
+
+.pf-c-jump-links__link.pf-m-current, .pf-c-jump-links__link.pf-m-current:hover, .pf-c-jump-links__link.pf-m-current:not(.pf-m-expanded) .pf-c-nav__link {
+
+    color: var(--pf-c-nav__link--m-current--Color);
+    background-color: var(--pf-c-nav__link--m-current--BackgroundColor);
+
+}
+
+/*Make big titles less bold*/
+
+.pf-c-title.pf-m-4xl{
+  font-weight: var(--pf-global--FontWeight--light);
+}
+
+/*FOOTER*/
 
 /* Makes scrolling smooth when clicking links on the right*/
 

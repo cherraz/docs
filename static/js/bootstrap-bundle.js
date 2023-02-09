@@ -6077,7 +6077,7 @@
     const EVENT_SCROLL = `scroll${EVENT_KEY$2}`;
     const EVENT_LOAD_DATA_API = `load${EVENT_KEY$2}${DATA_API_KEY$1}`;
     const CLASS_NAME_DROPDOWN_ITEM = 'dropdown-item';
-    const CLASS_NAME_ACTIVE$1 = 'active';
+    const CLASS_NAME_ACTIVE$1 = 'pf-m-current';
     const SELECTOR_DATA_SPY = '[data-bs-spy="scroll"]';
     const SELECTOR_NAV_LIST_GROUP$1 = '.pf-c-jump-links__list, .list-group';
     const SELECTOR_NAV_LINKS = '.pf-c-jump-links__link';
