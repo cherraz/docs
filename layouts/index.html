@@ -38,11 +38,7 @@
             {{ $section := where $.Site.Pages "Section" "blog"}}
             {{ $section := where $section "RelPermalink" "ne" "/blog/" }}
             {{ range (first 1 $section) }}
-              <div class="pf-c-card">
-                <div class="pf-c-card__body">
-                  {{ .Render "summary" }}
-                </div>
-              </div>
+            {{ .Render "summary" }}
             {{ end }}
           </div>
         </div>
