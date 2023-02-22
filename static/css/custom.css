@@ -351,9 +351,16 @@ td > code {
   background-color: var(--pf-c-nav__link--m-current--BackgroundColor);
 }
 /*Makes nav items like accordion items*/
+/*Need this to unify the look of the pages*/
 .pf-c-nav__link {
   padding-left: 16px;
  --pf-c-nav__link--before--BorderBottomWidth: 0;
+ line-height: var(--pf-global--LineHeight--md);
+}
+
+.pf-c-nav__toggle {
+  padding-right: 0;
+
 }
 
 /*Make big titles less bold*/
@@ -370,20 +377,7 @@ td > code {
   font-weight: bold ;
 }
 
-.filter-title {
-  margin-left: 1rem;
-}
-
-.reset-title {
-  margin-right: 1rem;
-  font-size: 0.75em;
-}
-
-
-.filter-title-div {
-  margin-top: 2rem;
-}
-
+/* This allows long names on nav items/accordions to wrap*/
 .wrappable {
   white-space:break-spaces;
   text-align: left
@@ -397,6 +391,21 @@ td > code {
   font-size:0.8rem;
 }
 
+/*RIGTH NAV titles */
+
+.filter-title {
+  margin-left: 1rem;
+}
+
+.reset-title {
+  margin-right: 1rem;
+  font-size: 0.75em;
+}
+
+.filter-title-div {
+  margin-top: 2rem;
+}
+
 /*ACCORDIONS*/
 
 /* This puts the accent on the open accordion*/
@@ -405,7 +414,6 @@ td > code {
 	border-left-width: 1px;
   border-style: solid;
 }
-
 
 .collapse:not(.show) {
     display: none;
@@ -423,6 +431,10 @@ td > code {
 
 .pf-c-accordion__toggle {
   padding: var(--pf-global--spacer--md) var(--pf-global--spacer--lg) var(--pf-global--spacer--md) var(--pf-global--spacer--md);
+}
+
+.pf-c-accordion__toggle-icon {
+  font-size: var(--pf-global--icon--FontSize--md);
 }
 
 .pf-c-accordion__toggle-link {
