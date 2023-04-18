@@ -7,24 +7,60 @@
     <div class="pf-c-nav pf-m-light">
       <ul class="pf-c-nav__list">
         {{ range .Site.Menus.learn }}
+
+     
+       <!--
+        {{- if and (.HasChildren) (or ( $currentPage.IsMenuCurrent "learn" . ) ( $currentPage.HasMenuCurrent "learn" . )) -}}
+        This will collapse all the children and only show them if clicked on the actual page
+        Also comments of hugo code won't let the page isplay unless they have an end. Commented. Like this one
+       {{ end }}-->
+
+        {{ if .HasChildren }}
+        <!-- This will display all the children -->
+        <!-- This applies to nav items that are displaying their children-->
+
           <li class="pf-c-nav__item pf-m-expanded">
-            <a href="{{ .URL }}" class="pf-c-nav__link {{ if ( $currentPage.IsMenuCurrent "learn" . ) -}}pf-m-current{{- end -}}">
+            <a href="{{ .URL }}" class="pf-c-nav__link {{ if or ($currentPage.IsMenuCurrent "learn" .) ($currentPage.HasMenuCurrent "learn" .) }}pf-m-current{{ end }}">
               {{- .Name -}}
+              <!-- If the section with children is not the active one, chevron to the right-->
+              {{ if not (or ($currentPage.IsMenuCurrent "learn" .) ($currentPage.HasMenuCurrent "learn" .)) }}
+
+              <!-- We need a span because the active blue line already uses the after pseudo-->
+              <span class="pf-c-nav__toggle">
+                <svg style="vertical-align:-0.125em" fill="currentColor" height="1em" width="1em" viewBox="0 0 256 512" aria-hidden="true" role="img">
+                  <path d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"></path>
+                </svg>
+                <span class="pf-c-nav__toggle-icon"></span>
+              </span>
+              <!-- If the section with children is active, chevron down-->
+              {{ else }}
+              <span class="pf-c-nav__toggle">
+                <svg style="vertical-align:-0.125em" transform="rotate(90)" fill="currentColor" height="1em" width="1em" viewBox="0 0 256 512" aria-hidden="true" role="img">
+                  <path d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"></path>
+                </svg>
+                <span class="pf-c-nav__toggle-icon"></span>
+              {{ end }}
             </a>
-            {{- if and (.HasChildren) (or ( $currentPage.IsMenuCurrent "learn" . ) ( $currentPage.HasMenuCurrent "learn" . )) -}}
-            <section class="pf-c-nav__subnav ">
+            <!-- If the section with children is not the active one, collapse the children-->
+            <section class="pf-c-nav__subnav {{ if not (or ($currentPage.IsMenuCurrent "learn" .) ($currentPage.HasMenuCurrent "learn" .)) }}collapse{{ end }}">
               <ul class="pf-c-nav__list">
                 {{- range .Children }}
                   <li class="pf-c-nav__item pf-m-expanded">
-                    <a href="{{ .URL }}" class="pf-c-nav__link {{ if ( $currentPage.IsMenuCurrent "learn" . ) -}}pf-m-current{{- end -}}">
+                    <a href="{{ .URL }}" class="pf-c-nav__link {{ if $currentPage.IsMenuCurrent "learn" . }}pf-m-current{{ end }}">
                       {{- .Name -}}
                     </a>
                   </li>
                 {{ end }}
               </ul>
-            </section>
-            {{ end }}
+          </section>
           </li>
+        {{ else }}
+        <!-- This applies to the nav items that aren't displaying their children-->
+        <li class="pf-c-nav__item pf-m-expanded">
+          <a href="{{ .URL }}" class="pf-c-nav__link {{ if $currentPage.IsMenuCurrent "learn" . }}pf-m-current{{ end }}">
+            {{- .Name -}}
+          </a>
+        {{ end }}
         {{ end }}
       </ul>
     </div>

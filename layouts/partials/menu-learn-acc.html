@@ -1,0 +1,53 @@
+{{ $currentPage := . }}
+<div class="pf-l-flex filter-title-div">
+  <span class="pf-c-title pf-m-md filter-title pf-l-flex__item pf-m-grow">Menu</span>
+</div>
+
+<div class="pf-c-select pf-m-expanded">
+  <div class="pf-c-select__menu">
+    <!--Accordion starts-->
+    <div class="pf-c-accordion accordion" id="learnAccordionNav">
+      {{ range .Site.Menus.learn }}
+      <!-- ITEMS-->
+      <!-- Items are created automatically by Hugo-->
+
+      <!-- if we're in the main menu, there's no collapsed so chevron is down-->
+      <!-- if we are in a page, there's collapsed and chevron is right -->
+
+      <!-- making an accordion half works, but the fact that there's a link wrapping the button is a royal pain-->
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="typeHeading">
+          <a href="{{ .URL }}" class="accordion-link {{ if ( $currentPage.IsMenuCurrent "learn" . ) -}}pf-m-current{{- end -}} ">
+            <button class="pf-c-accordion__toggle" title=" {{- .Name -}}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{- .Name -}}" aria-expanded="true" aria-controls="collapse{{- .Name -}}">
+              {{- .Name -}}
+            </button>
+          </a>
+        </h2>
+
+        {{- if and (.HasChildren) (or ( $currentPage.IsMenuCurrent "learn" . ) ( $currentPage.HasMenuCurrent "learn" . )) -}}
+        <!--Only if there's children create the structure for them-->
+        <div id="collapse{{- .Name -}}" class="pf-c-accordion__expanded-content" aria-labelledby="typeHeading" data-bs-parent="#learnAccordionNav">
+          <div class="pf-c-accordion__expanded-content-body">
+            <div class="pf-c-select__menu-group">
+              <section class="pf-c-nav__subnav">
+                <ul class="pf-c-nav__list">
+                  {{- range .Children }}
+                    <li class="pf-c-nav__item pf-m-expanded">
+                      <a href="{{ .URL }}" class="pf-c-nav__link {{ if ( $currentPage.IsMenuCurrent "learn" . ) -}}pf-m-current{{- end -}}">
+                        {{- .Name -}}
+                      </a>
+                    </li>
+                  {{ end }}
+                </ul>
+              </section>
+            </div>
+          </div>
+        </div>
+        {{ end }}
+        <!--Acordion items end with div below-->
+      </div>
+      {{ end }}
+    </div>
+  </div>
+</div>

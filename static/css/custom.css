@@ -430,11 +430,13 @@ td > code {
 /*CSS from Bootstrap 5x, modified*/
 
 /* This puts the accent on the open accordion*/
-.collapsed-effect:after {
+.collapsed-effect::after,
+.accordion-link.pf-m-current::after {
 	border-color: var(--pf-global--active-color--100);
 	border-left-width: 1px;
   border-style: solid;
 }
+
 
 .collapse:not(.show) {
     display: none;
@@ -472,6 +474,10 @@ td > code {
   .pf-c-accordion__toggle {
     transition: none;
   }
+}
+
+.accordion-link {
+  text-decoration: none;
 }
 
 .collapsed-effect::after {

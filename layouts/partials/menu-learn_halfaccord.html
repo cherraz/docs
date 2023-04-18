@@ -1,0 +1,22 @@
+{{ $currentPage := . }}
+<div class="pf-l-flex filter-title-div">
+  <span class="pf-c-title pf-m-md filter-title pf-l-flex__item pf-m-grow">Menu</span>
+</div>
+
+<div class="pf-c-select pf-m-expanded">
+  <div class="pf-c-select__menu">
+    {{ range .Site.Menus.learn }}
+    <!--Accordion starts-->
+    <div class="pf-c-accordion accordion" id="patternsAccordionNav">
+      <!-- ITEMS-->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="typeHeading">
+          <button class="pf-c-accordion__toggle {{ if ( $currentPage.IsMenuCurrent "learn" . ) -}}pf-m-current{{- end -}} {{- if and (.HasChildren) -}} pf-c-accordion__toggle collapsed{{- end -}}" title=" {{- .Name -}}" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapse {{- .Name -}}">
+            {{- .Name -}}
+          </button>
+        </h2>
+      </div>
+    </div>
+    {{ end }}
+  </div>
+</div>
