@@ -20,19 +20,30 @@ class Badge {
     
     getLabel(field) {
         if(field == "pattern") {
-	    return stringForKey(this.platform)+" "+this.version+" @ "+ this.date;
+	    return stringForKey(this.platform)+" "+this.version;
         }
         if(field == "platform") {
-	    return stringForKey(this.pattern)+" - "+this.version+" @ "+ this.date;
+	    return stringForKey(this.pattern)+" - "+this.version;
         }
         if(field == "version") {
-	    return stringForKey(this.pattern)+" : "+stringForKey(this.platform)+" @ "+ this.date;
+	    return stringForKey(this.pattern)+" : "+stringForKey(this.platform);
+        }
+        if(field == "date") {
+	    return stringForKey(this.pattern)+" : "+stringForKey(this.platform)+" "+this.version;
         }
 	return stringForKey(this.pattern)+" : "+ stringForKey(this.platform)+" "+this.version+" @ "+ this.date;
     }
-
+	
     getURI() {
         return this.base+"/"+this.key;
+    }
+
+    getJenkinsURI() {
+        return jenkins_base_url(this.pattern)+"/job/"+jenkins_job(this.pattern, this.platform, this.version)+"/lastBuild/";
+    }
+
+    getJiraSearch() {
+        return "https://issues.redhat.com/issues/?jql=project%3D%22Validated%20Patterns%22%20and%20labels%20in%20(ci-fail)%20and%20component%3D"+jira_component(this.pattern)+"%20and%20status%20not%20in%20(Closed)";
     }
 }
 
@@ -41,6 +52,9 @@ function sleep(ms) {
 }
 
 function filterBadges(badges, field, value) {
+    if ( field === "date" ) {
+	return badges.filter(badge => badge.date === value);
+    }
     if ( field === "pattern" ) {
 	return badges.filter(badge => badge.pattern === value);
     }
@@ -54,6 +68,9 @@ function filterBadges(badges, field, value) {
 }
 
 function rowTitle(field, value) {
+    if ( field === "date" ) {
+	return stringForKey(value);
+    }
     if ( field === "pattern" ) {
 	return stringForKey(value);
     }
@@ -63,76 +80,143 @@ function rowTitle(field, value) {
     return value;
 }
 
-function get_shield_url(badge, label) {
+function get_shield_url(badge, label, links) {
     base = 'https://img.shields.io/endpoint?style=flat&logo=git&logoColor=white';
     // TODO: Replace the second link with the CI Job URL
-    base = base +'&link='+ encodeURI(badge.getURI()) + '&link=' + encodeURI(badge.getURI());
+    if ( links === "internal") {
+	base = base +'&link='+ encodeURI(badge.getJenkinsURI()) + '&link=' + encodeURI(badge.getJiraSearch());
+    } else {
+	base = base +'&link='+ encodeURI(badge.getURI()) + '&link=' + encodeURI(repo_url(badge.pattern));
+    }
     if ( label != "" ) {
         base = base +'&label='+ encodeURI(label);
     }
     return base + '&url=' + encodeURI(badge.getURI());
 }
 
-function get_key_url(color, label) {
-    uri = 'https://hybrid-cloud-patterns.io/'+color+'.json'
+function get_key_url(color, label, links) {
+    uri = 'https://hybrid-cloud-patterns.io/'+color+'.json';
     base = 'https://img.shields.io/endpoint?style=flat&logo=git&logoColor=white';
-    // TODO: Replace the second link with the CI Job URL
+
     base = base +'&link='+ encodeURI("/") + '&link=' + encodeURI(uri);
     if ( label != "" ) {
-        base = base +'&label='+ encodeURI(label);
+	base = base +'&label='+ encodeURI(label);
+    } else if ( links === "internal" ) {
+        base = base +'&label='+ encodeURI("Job name with link");
+    } else {
+        base = base +'&label='+ encodeURI("Job name");
     }
     return base + '&url=' + encodeURI(uri);
 }
 
-function print_shield(bucket, badge, tag) {
-    shield_url = get_shield_url(bucket, badge, tag);
-    //echo "<a href='bucket/badge' rel='nofollow'><img alt='tag' src='shield_url' style='max-width: 100%;'></a><br/>";
-    return "<object data="+shield_url+" style='max-width: 100%;'></object><br/>";
+function jira_component(pattern) {
+    const dictionary = {
+	aegitops: "ansible-edge",
+	devsecops: "devsecops",
+	manuela: "industrial-edge",
+	mcgitops: "multicloud-gitops",
+	medicaldiag: "medical-diagnosis"
+    };
+
+    if ( pattern in dictionary ) {
+	return dictionary[pattern];
+    }
+    return pattern;
+}
+
+function jenkins_job(pattern, platform, version) {
+    ciplatform = platform
+    if ( platform == "azr" ) {
+        ciplatform = "azure";
+    }
+
+    return pattern+"-"+ciplatform+"-ocp"+version+"-interop";
+}
+
+function jenkins_base_url(key) {
+    const prefix = 'https://mps-jenkins-csb-mpqe.apps.ocp-c1.prod.psi.redhat.com/job/ValidatedPatterns';
+    const dictionary = {
+	aegitops: "AnsibleEdgeGitops",
+	devsecops: "MulticlusterDevSecOps",
+	manuela: "Manuela",
+	mcgitops: "MultiCloudGitops",
+	medicaldiag: "MedicalDiagnosis"
+    };
+
+    if ( key in dictionary ) {
+	return prefix + '/job/' + dictionary[key];
+    }
+    return prefix;
 }
 
 function pattern_url(key) {
-    if ( key == "aegitops" ) {
-	return 'https://hybrid-cloud-patterns.io/patterns/ansible-edge-gitops/';
+    const prefix = 'https://hybrid-cloud-patterns.io/patterns/'
+    const dictionary = {
+	aegitops: "ansible-edge-gitops",
+	devsecops: "devsecops",
+	manuela: "industrial-edge",
+	mcgitops: "multicloud-gitops",
+	medicaldiag: "medical-diagnosis"
+    };
+
+    if ( key in dictionary ) {
+	return prefix + dictionary[key] + '/';
     }
-    if ( key == "devsecops" ) {
-	return 'https://hybrid-cloud-patterns.io/patterns/devsecops/';
+    return prefix + key + '/';
+}
+
+function repo_url(key) {
+    const prefix = 'https://github.com/hybrid-cloud-patterns/'
+    const dictionary = {
+	aegitops: "ansible-edge-gitops",
+	devsecops: "multicluster-devsecops",
+	manuela: "industrial-edge",
+	mcgitops: "multicloud-gitops",
+	medicaldiag: "medical-diagnosis"
+    };
+
+    if ( key in dictionary ) {
+	return prefix + dictionary[key] + '/';
     }
-    if ( key == "manuela" ) {
-	return 'https://hybrid-cloud-patterns.io/patterns/industrial-edge/';
-    }
-    if ( key == "mcgitops" ) {
-	return 'https://hybrid-cloud-patterns.io/patterns/multicloud-gitops/';
-    }
-    if ( key == "medicaldiag" ) {
-	return 'https://hybrid-cloud-patterns.io/patterns/medical-diagnosis/';
-    }
-    return 'https://hybrid-cloud-patterns.io/patterns/'+key+'/';
+    return prefix + key + '/';
 }
 
 function stringForKey(key) {
-    if ( key == "aegitops" ) {
-        return "Ansible Edge";
+    const dateRegex = /^(\d{2})-(\d{2})$/;
+    const months = [
+	"Jan",
+	"Feb",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"Aug",
+	"Sept",
+	"Oct",
+	"Nov",
+	"Dec"
+    ];
+
+    const dictionary = {
+	aegitops: "Ansible Edge",
+	devsecops: "DevSecOps",
+	manuela: "Industrial",
+	mcgitops: "Core GitOps",
+	medicaldiag: "Image Classification",
+	azr: "Azure",
+	gcp: "GCP",
+	aws: "AWS"
+    };
+
+    if ( key in dictionary ) {
+	return dictionary[key];
     }
-    if ( key == "devsecops" ) {
-        return "DevSecOps";
-    }
-    if ( key == "manuela" ) {
-        return "Industrial Edge";
-    }
-    if ( key == "mcgitops" ) {
-        return "MultiCloud GitOps";
-    }
-    if ( key == "medicaldiag" ) {
-        return "Medical Diagnosis";
-    }
-    if ( key == "azr" ) {
-        return "Azure";
-    }
-    if ( key == "gcp" ) {
-        return "Google";
-    }
-    if ( key == "aws" ) {
-        return "Amazon";
+
+    const matches = dateRegex.exec(key);
+    if ( matches ) {
+	monthIndex = parseInt(matches[1], 10) - 1;
+	return months[monthIndex] + " "+ matches[2];
     }
     return key;
 }
@@ -149,13 +233,10 @@ function getBadgeDate(xml) {
 
 function getUniqueValues(badges, field){
     results = [];
-    if (field == 'date' ) {
-	results.push('Entry');
-	return results;
-    }
-
     badges.forEach(b => {
-	if (field == 'platform' && ! results.includes(b.platform) ) {
+	if (field == 'date' && ! results.includes(b.date) ) {
+	    results.push(b.date);
+	} else if (field == 'platform' && ! results.includes(b.platform) ) {
 	    results.push(b.platform);
 	} else if (field == 'pattern' && ! results.includes(b.pattern) ) {
 	    results.push(b.pattern);
@@ -167,6 +248,8 @@ function getUniqueValues(badges, field){
     if ( field === "pattern" ) {
 	return results.sort(function(a, b){return -1 * a.localeCompare(b)});
     } else if ( field === "version" ) {
+	return results.sort(function(a, b){return -1 * a.localeCompare(b)});
+    } else if ( field === "date" ) {
 	return results.sort(function(a, b){return -1 * a.localeCompare(b)});
     }
     
@@ -215,61 +298,76 @@ function toTitleCase(str) {
     );
 }      
 
-function createKeyTable(rows) {
+function createKeyTable(rows, links) {
     //document.getElementById('data').innerHTML = 'Hello World!';
 
-    tableText = "<div style='ci-key'>";
+    tableText = "<div class='ci-key'>";
     tableText = tableText + "<h2>Key</h2>";
     tableText = tableText + "<table><tbody>";
 
     tableText = tableText + "<tr>";
     rows.forEach(r => {
-	tableText = tableText + "<td><object data='" + get_key_url(r, "") + "' style='max-width: 100%;'>'</object></td>";
+	tableText = tableText + "<td class='ci-badge'><object data='" + get_key_url(r, "", links) + "' style='max-width: 100%;'>&nbsp;</object>&nbsp;</td>";
     });
     tableText = tableText + "</tr>";
 
-    return tableText + "</tbody></table></div>";
+    tableText = tableText + "</tbody></table></div>";
+    return tableText;
 }
 
-function createFilteredHorizontalTable(badges, field, value, titles) {
+function createFilteredHorizontalTable(badges, field, value, titles, links = "public", max = 20) {
     //document.getElementById('data').innerHTML = 'Hello World!';
 
-    tableText = "<div style='ci-results'>";
+    tableText = "<div style='ci-results' id='ci-"+field+"-result'>";
     if ( titles ) {
 	tableText = tableText + "<h2>"+toTitleCase("By "+field)+"</h2>";
     }
-    tableText = tableText + "<table><tbody>";
+    tableText = tableText + "<table id='ci-"+field+"-table'><tbody>";
 
     rows = getUniqueValues(badges, field);
 
     rows.forEach(r => {
 	pBadges = filterBadges(badges, field, r);
 
-	tableText = tableText + "<tr>";
+	tableText = tableText + "<tr style='vertical-align:top'>";
 	if ( value == null && field == "pattern" ) {
-	    tableText = tableText + "<td><a href='" + pattern_url(r) + "'>" + rowTitle(field, r) + "</a></td>";
-	} else if ( value == null) {
-	    tableText = tableText + "<td><a href='?" + field + "=" + r + "'>" + rowTitle(field, r) + "</a></td>";
+	    tableText = tableText + "<td class='ci-badge'><a href='" + pattern_url(r) + "'>" + rowTitle(field, r) + "</a></td><td class='ci-badge'>&nbsp;</td>";
+	} else if ( value == null ) {
+	    tableText = tableText + "<td class='ci-badge'><a href='?" + field + "=" + r + "'>" + rowTitle(field, r) + "</a></td><td class='ci-badge'>&nbsp;</td>";
 	}
-	
+
+	let index = 0;
+	if ( true ) {
+            tableText = tableText + "<td><table><tbody><tr>";
+	}
 	pBadges.forEach(b => {
-	    tableText = tableText + "<td><object data='" + get_shield_url(b, b.getLabel(field)) + "' style='max-width: 100%;'>'</object></td>";
+	    if ( pBadges.length > max && index >= max ) {
+		tableText = tableText + "</tr><tr>";
+		index = 0;
+	    }
+	    
+	    tableText = tableText + "<td class='ci-badge'><object data='" + get_shield_url(b, b.getLabel(field), links) + "' style='padding: 10; max-width: 100%;'>'</object></td>";
+	    index = index + 1;
 	});
+	if ( true ) {
+            tableText = tableText + "</tr></tbody></table></td>";
+	}
 	tableText = tableText + "</tr>";
     });
 
     return tableText + "</tbody></table></div>";
 }
 
-function createFilteredVerticalTable(badges, field, value, titles) {
+function createFilteredVerticalTable(badges, field, value, titles, links = "public") {
     //document.getElementById('data').innerHTML = 'Hello World!';
 
-    tableText = "<div style='ci-results'>";
+    tableText = "<div style='ci-results' id='ci-"+field+"-result'>";
     if ( titles ) {
 	tableText = tableText + "<h2>"+toTitleCase("By "+field)+"</h2>";
     }
-    tableText = tableText + "<table><tbody>";
-    
+    tableText = tableText + "<table id='ci-"+field+"-table'><tbody>";
+
+    //style='vertical-align:top'
     rows = getUniqueValues(badges, field);
 
     fieldColumns = [];
@@ -278,7 +376,7 @@ function createFilteredVerticalTable(badges, field, value, titles) {
 	fieldColumns.push(filterBadges(badges, field, r));
 
 	// https://stackoverflow.com/questions/43775947/dynamically-generate-table-from-json-array-in-javascript
-	if ( value == null ) {
+	if ( value == null && field != "date" ) {
 	    tableText = tableText + "<th><a href='?" + field + "=" + r + "'>" + rowTitle(field, r) + "</a></th>";
 	}		  
     });
@@ -292,11 +390,11 @@ function createFilteredVerticalTable(badges, field, value, titles) {
 	tableText = tableText + "<tr>";
 	for ( i = 0; i < numColumns; i++) {
 	    blist = fieldColumns[i];
-	    tableText = tableText + "<td>";
+	    tableText = tableText + "<td class='ci-badge'>";
 	    if ( blist.length > row ) {
 		b = blist[row];
 		//		      console.log(b);
-		tableText = tableText + "<object data='" + get_shield_url(b, b.getLabel(field)) + "' style='max-width: 100%;'>'</object>";
+		tableText = tableText + "<object data='" + get_shield_url(b, b.getLabel(field), links) + "' style='max-width: 100%;'>'</object>";
 		any = true;
 	    }
 	    tableText = tableText + "</td>";
@@ -345,31 +443,39 @@ function getBadges(xmlText, bucket_url) {
 function processBucketXML(text, options) {
     const filter_field = options.get("filter_field");
     const filter_value = options.get("filter_value");
+    const links = options.get("links");
     badges = getBadges(text, options.get('bucket'));
 
     htmlText = "";
     
-    if ( filter_field === "date" ) {
-	badges.sort(function(a, b){return -1 * a.date.localeCompare(b.date)});
-	htmlText = createFilteredVerticalTable(badges, "date", null, false);
-
-    } else if (filter_field != null ) {
+    if (filter_field != null ) {
 	if ( filter_value != null) {
 	    badges = filterBadges(badges, filter_field, filter_value);
 	}
 	badges.sort(patternSort);
-	htmlText = createFilteredHorizontalTable(badges, filter_field, filter_value, false);
+	numElements = Math.min(Math.floor(window.innerWidth/140), 6);
+	// if ( window.innerWidth < 1200 ) {
+	//      No left or right sidebar    
+	//	numElements = Math.floor(window.innerWidth/140);
+	// } else if ( window.innerWidth < 1450 ) {
+	//      No right sidebar    
+	//	numElements = Math.floor((window.innerWidth-290)/140);
+	// } else {
+	//      Left and right sidebar, but fixed inner width
+	//	numElements = Math.floor(832/140);
+	// }
+	htmlText = createFilteredHorizontalTable(badges, filter_field, filter_value, false, links, numElements);
 
     } else {
-	htmlText = createKeyTable(["green", "yellow", "red"]);    
+	htmlText = createKeyTable(["green", "yellow", "red"], links);
 	
 	badges.sort(function(a, b){return -1 * a.date.localeCompare(b.date)});
-	htmlText = htmlText + createFilteredVerticalTable(badges, "date", null, true);
+	htmlText = htmlText + createFilteredHorizontalTable(badges, "date", null, true, links, Math.floor((window.innerWidth-200)/200));
 	
 	badges.sort(patternVertSort);
-	htmlText = htmlText + createFilteredHorizontalTable(badges, "pattern", null, true);
-	htmlText = htmlText + createFilteredVerticalTable(badges, "platform", null, true);
-	htmlText = htmlText + createFilteredVerticalTable(badges, "version", null, true);
+	htmlText = htmlText + createFilteredHorizontalTable(badges, "pattern", null, true, links, Math.floor((window.innerWidth-200)/140));
+	htmlText = htmlText + createFilteredVerticalTable(badges, "platform", null, true, links);
+	htmlText = htmlText + createFilteredVerticalTable(badges, "version", null, true, links);
     }
     document.getElementById(options.get('target')).innerHTML = htmlText;
 }
@@ -379,15 +485,19 @@ function getBucketOptions(input) {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
 
+    options.set('links', 'public');
     options.set('target', 'dataset');
     options.set('bucket', 'https://storage.googleapis.com/hcp-results');
 
     // input.bucket , or input["bucket"]
 
-    const fields = [ "bucket", "target", "filter_field", "filter_value" ];
+    const fields = [ "bucket", "target", "filter_field", "filter_value", "links" ];
     for ( i=0; i < fields.length; i++) {
 	const key = fields[i];
-	const value = input[key];
+	var value = input[key];
+	if ( value == null ) {
+	    value = urlParams.get(fields[i]);
+	}
 	if ( value != null ) {
 	    console.log(key, value);
 	    options.set(fields[i], value);	
